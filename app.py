@@ -110,6 +110,8 @@ def calculate_distance(metrics, comp):
 @app.route('/recommendCrops', methods=["GET", "POST"])
 def recommend():
     df = pd.read_csv('./data/data.json')
+    non_foods = ['Mung Bean', 'millet', 'Lentil', 'Jute', 'Ground Nut', 'Rubber', 'Tobacco', 'Kidney Beans', 'Moth Beans', 'Black gram', 'Adzuki Beans', 'Pigeon Peas', 'muskmelon']
+    df = df[df.label.isin(non_foods) == False]
     user_id = request.form["id"]
     doc_ref = users.document(str(user_id)).get()
     if not doc_ref.exists:

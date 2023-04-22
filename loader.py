@@ -51,7 +51,7 @@ def random_date(start_date, end_date):
         
 def generate_data():
     names = ["Jared", "Felix", "Emily", "Violet", "Rita", "Floyd", "Tony", "Tom", "Angelina"]
-    vegetables = ["Watermelon", "Pomegranate", "Orange", "Mango", "Cocounut", "Apple", "Banana", "Grape", "Sugarcane", "Peas"]
+    vegetables = ["Rice", "Wheat", "Tea", "Maize", "Coffee", "Cotton", "Peas", "Sugarcane", "Coconut", "banana", "grapes", "apple", "mango", "orange", "papaya", "pomegranate", "watermelon"]
     locations = ["Los Angeles, CA", "San Diego, CA", "Las Vegas, NV", "Phoenix, AZ", "Austin, TX", "New York City, NY", "Seattle, WA", "Chicago, IL"]
     
     for i in range(5):
