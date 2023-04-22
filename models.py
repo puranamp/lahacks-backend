@@ -13,14 +13,14 @@ class User(object):
         return "<User ID: {}, Full Name: {}, Revenue: {}, Time Created: {}>".format(id, name, revenue, created_at)
 
 class Product(object):
-    def __init__(self, owner_id, type, date_created, date_ready):
+    def __init__(self, owner_id, veggie_type, date_created, date_ready):
         self.owner_id = owner_id
-        self.type = type
+        self.veggie_type = veggie_type
         self.date_created = date_created
         self.date_ready = date_ready
 
     def to_dict(self):
-        return {"owner": self.owner, "type": self.type, "date_created": self.date_created, "date_ready": self.date_ready}
+        return {"owner": self.owner_id, "veggie_type": self.veggie_type, "date_created": self.date_created, "date_ready": self.date_ready}
     
     def __repr__(self):
         return "".format()
