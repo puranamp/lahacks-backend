@@ -40,7 +40,8 @@ def add_product(owner_id: int, veggie_type: str, date_created, date_ready):
     doc_ref = users.document(str(owner_id)).get()
     product = Product(owner_id, veggie_type, date_created, date_ready)
     if doc_ref.exists:
-        products.document(str(veggie_id)).set(product.to_dict())
+#        products.document(str(owner_id)).set(product.to_dict())
+        products.document(str(owner_id)).collection('unique_products').document(str(veggie_id)).set(product.to_dict())
     
     
 def random_date(start_date, end_date):

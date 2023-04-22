@@ -44,9 +44,17 @@ def get_user():
     return 'No such user!', 400
         
 
-
-
-
+@app.route('/getUserProducts', methods=["GET"])
+def get_user_products():
+    user_id = request.form["id"]
+    doc_ref = products.document(str(user_id))
+    col_ref = doc_ref.collection('unique_products')
+    # load in all docs
+    docs = col_ref.get()
+    mp = {}
+    for doc in docs:
+        mp[doc.id] = doc.to_dict()
+    return jsonify(mp)
 
 
 
