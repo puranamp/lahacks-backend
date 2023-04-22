@@ -43,7 +43,12 @@ def get_user():
     if doc_ref.exists:
         return jsonify(doc_ref.to_dict())
     return 'No such user!', 400
-        
+
+@app.route('/getVegetable', methods=["GET"])
+def get_veggie():
+    veggie_name = request.form["name"]
+    doc_ref = vegetables.document(veggie_name).get()
+    return jsonify(doc_ref.to_dict())
 
 @app.route('/getUserProducts', methods=["GET"])
 def get_user_products():
