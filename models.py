@@ -23,7 +23,7 @@ class Product(object):
         return {"owner": self.owner_id, "veggie_type": self.veggie_type, "date_created": self.date_created, "date_ready": self.date_ready}
     
     def __repr__(self):
-        return "".format()
+        return "<Owner ID: {}, Veggie Type: {}, Date Created: {}, Date Ready: {}>".format(owner_id, veggie_type, date_created, date_ready)
 
 
 class Vegetable(object):
@@ -39,5 +39,20 @@ class Vegetable(object):
     def to_dict(self):
         return {"name": self.name, "season": self.season, "temperature": self.temperature, "soil_type": self.soil_type}
         
-    def __repr(self):
-        pass
+    def __repr__(self):
+        return "<Name: {}, Season: {}, Temperature: {}, Watering Delta: {}, Soil Type: {}, Hardiness: {}, Difficulty: {}>".format(name, season, temperature, watering_delta, soil_type, hardiness, difficulty)
+
+
+class Transaction(object):
+    def __init__(self, buyer, seller, product, amt, price):
+        self.buyer = buyer
+        self.seller = seller
+        self.product = product
+        self.amt = amt
+        self.price = price
+
+    def to_dict(self):
+        return {"buyer": self.buyer, "seller": self.seller, "product": self.product, "amt": self.amt, "price": self.price}
+
+    def __repr__(self):
+        return "Buyer: {}, Seller: {}, Product: {}, Amount: {}, Price: {}".format(self.buyer, self.seller, self.product, self.amt, self.price)

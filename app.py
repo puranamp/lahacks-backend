@@ -1,10 +1,10 @@
-import os, re, sys, random
+import os, re, sys, random, json
 import requests
 from dotenv import load_dotenv
 import datetime
 from flask import Flask, render_template, request, jsonify, url_for, redirect
 from flask_cors import CORS, cross_origin
-from models import Vegetable, Product, User
+from models import Vegetable, Product, User, Transaction
 from config import Config
 from firebase_admin import credentials, firestore, initialize_app
 import pandas as pd
@@ -22,6 +22,7 @@ db = firestore.client()
 vegetables = db.collection("vegetables")
 products = db.collection("user_products")
 users = db.collection("users")
+transactions = db.collection("transactions")
 rand_set = set()
 
 @app.route('/', methods=["GET", "POST"])
@@ -43,6 +44,21 @@ def get_user():
     if doc_ref.exists:
         return jsonify(doc_ref.to_dict())
     return 'No such user!', 400
+
+@app.route('/transact', methods=["GET", "POST"])
+def transact():
+    if request.method == "POST":
+        id = request.form["id"]
+        buyer = request.form["buyer"]
+        seller = request.form["seller"]
+        crop = request.form["product"]
+        amt = request.form["amt"]
+        price = request.form["price"]
+        transaction = Transaction(buyer, seller, crop, amt, price)
+        transactions.document(str(id)).set(transaction.to_dict())
+        
+    return "/verify/" + str(hash(json.dumps(transaction.to_dict())))
+
 
 @app.route('/getVegetable', methods=["GET"])
 def get_veggie():
@@ -99,12 +115,16 @@ def add_product():
 
 @app.route('/removeProduct', methods=["GET", "POST"])
 def remove_product():
-    user_id = request.form["id"]
-    owner_id = request.form["owner_id"]
-    veggie_id = request.form["veggie_id"]
-    doc_ref = products.document(str(owner_id))
-    col_ref = doc_ref.collection(u'unique_products')
-    col_ref.update({str(veggie_id) : firestore.DELETE_FIELD})
+    if request.method == "POST":
+        owner_id = request.form["owner_id"]
+        veggie_id = request.form["veggie_id"]
+        doc_ref = products.document(str(owner_id))
+        col_ref = doc_ref.collection(u'unique_products')
+        try:
+            col_ref.document(str(veggie_id)).delete()
+        except:
+            return "Bad Request", 400
+    return "Successful Deletion!", 200
 
 def calculate_distance(metrics, comp):
     total = 0
@@ -115,8 +135,8 @@ def calculate_distance(metrics, comp):
 @app.route('/recommendCrops', methods=["GET", "POST"])
 def recommend():
     df = pd.read_csv('./data/data.json')
-    non_foods = ['Mung Bean', 'millet', 'Lentil', 'Jute', 'Ground Nut', 'Rubber', 'Tobacco', 'Kidney Beans', 'Moth Beans', 'Black gram', 'Adzuki Beans', 'Pigeon Peas', 'muskmelon']
-    df = df[df.label.isin(non_foods) == False]
+    discarded_foods = ['Mung Bean', 'millet', 'Lentil', 'Jute', 'Ground Nut', 'Rubber', 'Tobacco', 'Kidney Beans', 'Moth Beans', 'Black gram', 'Adzuki Beans', 'Pigeon Peas', 'muskmelon']
+    df = df[df.label.isin(discarded_foods) == False]
     user_id = request.form["id"]
     doc_ref = users.document(str(user_id)).get()
     if not doc_ref.exists:
@@ -140,4 +160,4 @@ def recommend():
     
 
 if __name__ == "__main__":
-    app.run(threaded=True, debug=True, port=os.environ.get('PORT'))
+    app.run(threaded=True, debug=True, host="0.0.0.0", port=os.environ.get('PORT'))
