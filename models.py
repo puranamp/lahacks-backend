@@ -37,7 +37,7 @@ class Vegetable(object):
         self.difficulty = difficulty
 
     def to_dict(self):
-        return {"name": self.name, "season": self.season, "temperature": self.temperature, "soil_type": self.soil_type}
+        return {"name": self.name, "season": self.season, "temperature": self.temperature, "soil_type": self.soil_type, "hardiness": self.hardiness, "difficulty": self.difficulty}
         
     def __repr__(self):
         return "<Name: {}, Season: {}, Temperature: {}, Watering Delta: {}, Soil Type: {}, Hardiness: {}, Difficulty: {}>".format(name, season, temperature, watering_delta, soil_type, hardiness, difficulty)

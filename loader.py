@@ -27,9 +27,9 @@ def add_user(user_name: str, revenue: int, location, created_at):
     return id
 
 
-def add_vegetable(name: str, season: str, temperature, watering_delta, soil_type, hardiness):
-    veggie = Vegetable(name, season, temperature, watering_delta, soil_type, hardiness, random.randint(1, 5))
-    vegetables.document(name).set(veggie.to_dict())
+def add_vegetable(name: str, season: str, temperature, watering_delta, soil_type, hardiness, difficulty=0):
+    veggie = Vegetable(name.capitalize(), season, temperature, watering_delta, soil_type, hardiness, random.randint(1, 5))
+    vegetables.document(name.capitalize()).set(veggie.to_dict())
 
 
 def add_product(owner_id: int, veggie_type: str, date_created, date_ready):
@@ -55,9 +55,9 @@ def generate_data():
     locations = ["Los Angeles, CA", "San Diego, CA", "Las Vegas, NV", "Phoenix, AZ", "Austin, TX", "New York City, NY", "Seattle, WA", "Chicago, IL"]
     seasons = ["Summer", "Spring", "Fall"] # Winter not good for plants
     for name in vegetables:
-        add_vegetable(name, random.choice(seasons), random.randint(50, 80), random.randint(1, 3), random.randint(5, 8), random.randint(3, 12))
+        add_vegetable(name.capitalize(), random.choice(seasons), random.randint(50, 80), random.randint(1, 3), random.randint(5, 8), random.randint(3, 12))
     for i in range(10):
-        name = random.choice(names)
+        name = random.choice(names).capitalize()
         location = random.choice(locations)
         created = datetime.datetime(1945, 1, 1)
         start = datetime.datetime(2023, 1, 1)

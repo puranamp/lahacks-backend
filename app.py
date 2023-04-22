@@ -135,8 +135,9 @@ def calculate_distance(metrics, comp):
 @app.route('/recommendCrops', methods=["GET", "POST"])
 def recommend():
     df = pd.read_csv('./data/cropdata.csv')
-    discarded_foods = ['Mung Bean', 'millet', 'Lentil', 'Jute', 'Ground Nut', 'Rubber', 'Tobacco', 'Kidney Beans', 'Moth Beans', 'Black gram', 'Adzuki Beans', 'Pigeon Peas', 'muskmelon']
+    discarded_foods = ['Mung Bean', 'Millet', 'Lentil', 'Jute', 'Ground Nut', 'Rubber', 'Tobacco', 'Kidney Beans', 'Moth Beans', 'Black gram', 'Adzuki Beans', 'Pigeon Peas', 'Muskmelon']
     df = df[df.label.isin(discarded_foods) == False]
+    discarded_foods = set(discarded_foods)
     user_id = request.form["id"]
     doc_ref = users.document(str(user_id)).get()
     if not doc_ref.exists:
@@ -151,13 +152,55 @@ def recommend():
     num_neighbors = random.randint(4, 7)
     nearest_set, idx, nearest_ordered = set(), 0, []
     while len(nearest_set) != num_neighbors and idx < len(distances):
-        if distances[idx][0] not in nearest_set:
+        if distances[idx][0] not in nearest_set and distances[idx][0] not in discarded_foods:
             nearest_set.add(distances[idx][0])
-            nearest_ordered.append(distances[idx][0])
+            nearest_ordered.append(distances[idx][0].capitalize())
         idx += 1
+    try:
+        res = {}
+        for element in nearest_ordered:
+            docs_ref = vegetables.document(element.capitalize()).get().to_dict()
+            res[element] = {}
+            if docs_ref['temperature'] > 30:
+                res[element]["climate"] = "Warm"
+            elif docs_ref['temperature'] > 20:
+                res[element]["climate"] = "Temperate"
+            else:
+                res[element]["climate"] = "Cool"
+            if docs_ref['difficulty'] > 4:
+                res[element]["experience"] = "Expert"
+            elif docs_ref['difficulty'] > 2:
+                res[element]["experience"] = "Intermediate"
+            else:
+                res[element]["experience"] = "Beginner"
+            humidity = temperature["main"]["humidity"]
+            if humidity >= 65:
+                res[element]["humidity"] = "High"
+            elif humidity >= 55:
+                res[element]["humidity"] = "Moderate"
+            else:
+                res[element]["humidity"] = "Low"
+            clouds = temperature["clouds"]["all"]
+            if clouds >= 85:
+                res[element]["clouds"] = "Overcast Clouds"
+            elif clouds >= 50:
+                res[element]["clouds"] = "Broken Clouds"
+            elif clouds >= 25:
+                res[element]["clouds"] = "Scattered Clouds"
+            else:
+                res[element]["clouds"] = "Few Clouds"
+    except:
+        return "Bad Request", 400
+    return jsonify(res)
 
-    return jsonify({"ranking": nearest_ordered})
-    
+@app.route('/closestCity', methods=["GET"])
+def get_closest_city():
+    latitude = request.form["latitude"]
+    longitude = request.form["longitude"]
+    res = requests.get(f"http://api.openweathermap.org/data/2.5/find?lat={latitude}&lon={longitude}&cnt=1&APPID=1107f09a2cd574c391617612953ada00").json()
+    if res["cod"] == "404":
+        return jsonify({})
+    return jsonify({"city": res["list"][0]["name"]})
 
 if __name__ == "__main__":
     app.run(threaded=True, debug=True, host="0.0.0.0", port=os.environ.get('PORT'))
