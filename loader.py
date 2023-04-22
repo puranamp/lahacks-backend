@@ -27,8 +27,8 @@ def add_user(user_name: str, revenue: int, location, created_at):
     return id
 
 
-def add_vegetable(name: str, season: str, temperature, soil_type):
-    veggie = Vegetable(name, season, season, soil_type)
+def add_vegetable(name: str, season: str, temperature, soil_type, hardiness):
+    veggie = Vegetable(name, season, season, soil_type, hardiness)
     vegetables.document(name).set(veggie.to_dict())
 
 
@@ -51,9 +51,9 @@ def random_date(start_date, end_date):
         
 def generate_data():
     names = ["Jared", "Felix", "Emily", "Violet", "Rita", "Floyd", "Tony", "Tom", "Angelina"]
-    vegetables = ["Carrot", "Grape", "Tomato", "Cabbage"]
+    vegetables = ["Watermelon", "Pomegranate", "Orange", "Mango", "Cocounut", "Apple", "Banana", "Grape", "Sugarcane", "Peas"]
     locations = ["Los Angeles, CA", "San Diego, CA", "Las Vegas, NV", "Phoenix, AZ", "Austin, TX", "New York City, NY", "Seattle, WA", "Chicago, IL"]
-    # TODO: load in the informtion about the vegetables
+    
     for i in range(5):
         name = random.choice(names)
         location = random.choice(locations)
