@@ -134,7 +134,7 @@ def calculate_distance(metrics, comp):
 
 @app.route('/recommendCrops', methods=["GET", "POST"])
 def recommend():
-    df = pd.read_csv('./data/data.json')
+    df = pd.read_csv('./data/cropdata.csv')
     discarded_foods = ['Mung Bean', 'millet', 'Lentil', 'Jute', 'Ground Nut', 'Rubber', 'Tobacco', 'Kidney Beans', 'Moth Beans', 'Black gram', 'Adzuki Beans', 'Pigeon Peas', 'muskmelon']
     df = df[df.label.isin(discarded_foods) == False]
     user_id = request.form["id"]
