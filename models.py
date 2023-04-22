@@ -27,12 +27,14 @@ class Product(object):
 
 
 class Vegetable(object):
-    def __init__(self, name, season, temperature, soil_type, hardiness):
+    def __init__(self, name, season, temperature, watering_delta, soil_type, hardiness, difficulty):
         self.name = name
         self.season = season
         self.temperature = temperature
+        self.watering_delta = watering_delta
         self.soil_type = soil_type
         self.hardiness = hardiness
+        self.difficulty = difficulty
 
     def to_dict(self):
         return {"name": self.name, "season": self.season, "temperature": self.temperature, "soil_type": self.soil_type}
