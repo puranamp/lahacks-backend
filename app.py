@@ -103,8 +103,8 @@ def remove_product():
 
 def calculate_distance(metrics, comp):
     total = 0
-    total += pow(pow(metrics['temperature'] - 273.15, 2) + pow(comp[0], 2),0.5)
-    total += pow(pow(metrics['humidity'], 2) + pow(comp[1], 2), 0.5)
+    total += pow(pow((metrics['temperature'] - 273.15) - comp[0], 2), 0.5)
+    total += pow(pow(metrics['humidity'] - comp[1], 2), 0.5)
     return total
 
 @app.route('/recommendCrops', methods=["GET", "POST"])
