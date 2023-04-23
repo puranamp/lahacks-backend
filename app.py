@@ -81,14 +81,17 @@ def transact():
         transaction = Transaction(buyer, seller, crop, amt, price)
         transactions.document(str(id)).set(transaction.to_dict())
         hash_string = "/verify/" + str(hash(json.dumps(transaction.to_dict())))
-        hashes.document(hash_string).set({"active": True, "transaction_id": id})
+        hashes.document(hash_string[8:]).set({
+            "active": True,
+            "transaction_id": id
+        })
     return hash_string
 
-@app.route('/verify/<str:hash_string>')
-def verify(hash_string: str):
+@app.route('/verify/<hash_string>')
+def verify(hash_string):
     doc_ref = hashes.document(hash_string)
     try:
-        real_doc = doc_ref.get()
+        real_doc = doc_ref.get().to_dict()
         if real_doc["active"]:
             transaction_doc = transactions.document(real_doc["transaction_id"])
             transaction_doc.update({
