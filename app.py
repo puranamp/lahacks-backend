@@ -23,6 +23,7 @@ vegetables = db.collection("vegetables")
 products = db.collection("user_products")
 users = db.collection("users")
 transactions = db.collection("transactions")
+hashes = db.collection("hashes")
 rand_set = set()
 
 @app.route('/', methods=["GET", "POST"])
@@ -42,7 +43,30 @@ def get_user():
     user_id = request.form["id"]
     doc_ref = users.document(str(user_id)).get()
     if doc_ref.exists:
-        return jsonify(doc_ref.to_dict())
+        ref = doc_ref.to_dict()
+        location = ref["location"]
+        weather_data = requests.get(f"http://api.openweathermap.org/data/2.5/weather?q={location}, us&APPID=1107f09a2cd574c391617612953ada00").json()
+        res = {
+            "id": user_id,
+            "name": ref["name"],
+            "coords": {
+                "latitude": weather_data["coord"]["lat"],
+                "longitude": weather_data["coord"]["lon"]
+            },
+            "sales": [],
+            "receipts": [],
+            "rating": 3.14159265
+        }
+        # Sales -> User is the Seller
+        # Receipts -> User is the Buyer
+        docs = transactions.stream()
+        for doc in docs:
+            if user_id == doc.get('buyer'):
+                res["receipts"].append(doc.to_dict())
+            elif user_id == doc.get('seller'):
+                res["sales"].append(doc.to_dict())
+        
+        return res
     return 'No such user!', 400
 
 @app.route('/transact', methods=["GET", "POST"])
@@ -56,9 +80,25 @@ def transact():
         price = request.form["price"]
         transaction = Transaction(buyer, seller, crop, amt, price)
         transactions.document(str(id)).set(transaction.to_dict())
-        
-    return "/verify/" + str(hash(json.dumps(transaction.to_dict())))
+        hash_string = "/verify/" + str(hash(json.dumps(transaction.to_dict())))
+        hashes.document(hash_string).set({"active": True, "transaction_id": id})
+    return hash_string
 
+@app.route('/verify/<str:hash_string>')
+def verify(hash_string: str):
+    doc_ref = hashes.document(hash_string)
+    try:
+        real_doc = doc_ref.get()
+        if real_doc["active"]:
+            transaction_doc = transactions.document(real_doc["transaction_id"])
+            transaction_doc.update({
+                "finished": True
+            })
+            doc_ref.delete()
+    except:
+        return "Invalid Hash Token", 400
+    
+    return "Success!", 200
 
 @app.route('/getVegetable', methods=["GET"])
 def get_veggie():
@@ -115,16 +155,32 @@ def add_product():
 
 @app.route('/removeProduct', methods=["GET", "POST"])
 def remove_product():
+    """Basically selling the plant"""
     if request.method == "POST":
         owner_id = request.form["owner_id"]
         veggie_id = request.form["veggie_id"]
         doc_ref = products.document(str(owner_id))
         col_ref = doc_ref.collection(u'unique_products')
         try:
-            col_ref.document(str(veggie_id)).delete()
+            if col_ref.document(str(veggie_id)).get().to_dict()["ready_for_sale"]:
+                col_ref.document(str(veggie_id)).delete()
+            else:
+                return "Not ready to be sold yet!", 200
         except:
             return "Bad Request", 400
     return "Successful Deletion!", 200
+
+@app.route('/startSale', methods=["POST"])
+def start_sale():
+    user_id = request.form["id"]
+    veggie_id = request.form["veggie_id"]
+    doc_ref = products.document(str(user_id))
+    col_ref = doc_ref.collection(u'unique_products')
+    ref = col_ref.document(str(veggie_id))
+    ref.update({
+        'ready_for_sale': True
+    })
+    return ref.get().to_dict()
 
 def calculate_distance(metrics, comp):
     total = 0

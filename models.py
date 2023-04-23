@@ -13,14 +13,15 @@ class User(object):
         return "<User ID: {}, Full Name: {}, Revenue: {}, Time Created: {}>".format(id, name, revenue, created_at)
 
 class Product(object):
-    def __init__(self, owner_id, veggie_type, date_created, date_ready):
+    def __init__(self, owner_id, veggie_type, date_created, date_ready, ready_for_sale=False):
         self.owner_id = owner_id
         self.veggie_type = veggie_type
         self.date_created = date_created
         self.date_ready = date_ready
+        self.ready_for_sale = ready_for_sale
 
     def to_dict(self):
-        return {"owner": self.owner_id, "veggie_type": self.veggie_type, "date_created": self.date_created, "date_ready": self.date_ready}
+        return {"owner": self.owner_id, "veggie_type": self.veggie_type, "date_created": self.date_created, "date_ready": self.date_ready, "ready_for_sale": self.ready_for_sale}
     
     def __repr__(self):
         return "<Owner ID: {}, Veggie Type: {}, Date Created: {}, Date Ready: {}>".format(owner_id, veggie_type, date_created, date_ready)
@@ -44,15 +45,15 @@ class Vegetable(object):
 
 
 class Transaction(object):
-    def __init__(self, buyer, seller, product, amt, price):
+    def __init__(self, buyer, seller, product, amt, price, finished=False):
         self.buyer = buyer
         self.seller = seller
         self.product = product
         self.amt = amt
         self.price = price
+        self.finished = finished
 
     def to_dict(self):
-        return {"buyer": self.buyer, "seller": self.seller, "product": self.product, "amt": self.amt, "price": self.price}
-
+        return {"buyer": self.buyer, "seller": self.seller, "product": self.product, "amt": self.amt, "price": self.price, "finished": self.finished}
     def __repr__(self):
         return "Buyer: {}, Seller: {}, Product: {}, Amount: {}, Price: {}".format(self.buyer, self.seller, self.product, self.amt, self.price)
